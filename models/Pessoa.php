@@ -1,5 +1,4 @@
 <?php
-
 abstract class Pessoa {
     protected $nome;
     protected $email;
@@ -27,5 +26,4 @@ abstract class Pessoa {
         $this->email = $email;
     }
 }
-
 ?>

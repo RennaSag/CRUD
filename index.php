@@ -1,3 +1,30 @@
+<?php
+session_start();
+
+// autoload das classes
+spl_autoload_register(function ($class) {
+    $directories = [
+        'models/',
+        'controllers/',
+        'config/'
+    ];
+    
+    foreach ($directories as $directory) {
+        $file = $directory . $class . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
+    }
+});
+
+// verifica se eh uma requisicao da API
+if (isset($_GET['api'])) {
+    require_once 'api.php';
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -64,10 +91,8 @@
                         <p class="mb-0">CRUD com PHP OOP, Bootstrap e AJAX</p>
                     </div>
                     <div class="card-body p-4">
-                        <!--alertas-->
                         <div id="alertContainer"></div>
                         
-                        <!--botão para novo cliente-->
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h4 class="text-primary"><i class="fas fa-list me-2"></i>Lista de Clientes</h4>
                             <button class="btn btn-gradient btn-primary" data-bs-toggle="modal" data-bs-target="#clienteModal" onclick="novoCliente()">
@@ -75,7 +100,6 @@
                             </button>
                         </div>
 
-                        <!--tabela dos clientes-->
                         <div class="table-responsive">
                             <table class="table table-hover table-striped" id="clientesTable">
                                 <thead>
@@ -89,7 +113,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="clientesTableBody">
-                                    <!--dados carregados usando AJAX-->
                                 </tbody>
                             </table>
                         </div>
@@ -99,7 +122,7 @@
         </div>
     </div>
 
-    <!--modal cliente-->
+    
     <div class="modal fade" id="clienteModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -150,7 +173,7 @@
         </div>
     </div>
 
-    <!--modal de confirmação exclusão-->
+   
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -173,5 +196,183 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variaveis globais
+        let clienteAtual = null;
+        let deleteId = null;
+
+        // carrega clientes ao carregar a pagina
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarClientes();
+        });
+
+        // funcao p carregar clientes
+        function carregarClientes() {
+            fetch('?api=1', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('clientesTableBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum cliente cadastrado</td></tr>';
+                    return;
+                }
+                
+                data.forEach(cliente => {
+                    const row = `
+                        <tr>
+                            <td>${cliente.id}</td>
+                            <td>${cliente.nome}</td>
+                            <td>${cliente.email}</td>
+                            <td>${cliente.telefone}</td>
+                            <td>${cliente.endereco}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary me-1" onclick="editarCliente(${cliente.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="confirmarExclusao(${cliente.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                mostrarAlerta('Erro ao carregar clientes', 'danger');
+            });
+        }
+
+        // funcao p novo cliente
+        function novoCliente() {
+            clienteAtual = null;
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus me-2"></i>Novo Cliente';
+            document.getElementById('clienteForm').reset();
+            document.getElementById('clienteId').value = '';
+        }
+
+        // funcao p editar cliente
+        function editarCliente(id) {
+            fetch(`?api=1&id=${id}`)
+            .then(response => response.json())
+            .then(cliente => {
+                if (cliente.id) {
+                    clienteAtual = cliente;
+                    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-edit me-2"></i>Editar Cliente';
+                    document.getElementById('clienteId').value = cliente.id;
+                    document.getElementById('nome').value = cliente.nome;
+                    document.getElementById('email').value = cliente.email;
+                    document.getElementById('telefone').value = cliente.telefone;
+                    document.getElementById('endereco').value = cliente.endereco;
+                    
+                    new bootstrap.Modal(document.getElementById('clienteModal')).show();
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                mostrarAlerta('Erro ao carregar dados do cliente', 'danger');
+            });
+        }
+
+        // funcao p salvar cliente
+        function salvarCliente() {
+            const form = document.getElementById('clienteForm');
+            const formData = new FormData(form);
+            
+            const cliente = {
+                nome: formData.get('nome'),
+                email: formData.get('email'),
+                telefone: formData.get('telefone'),
+                endereco: formData.get('endereco')
+            };
+
+            // validacao basica
+            if (!cliente.nome || !cliente.email || !cliente.telefone || !cliente.endereco) {
+                mostrarAlerta('Todos os campos obrigatórios devem ser preenchidos', 'warning');
+                return;
+            }
+
+            const id = document.getElementById('clienteId').value;
+            const url = id ? `?api=1&id=${id}` : '?api=1';
+            const method = id ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(cliente)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    mostrarAlerta(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('clienteModal')).hide();
+                    carregarClientes();
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                mostrarAlerta('Erro ao salvar cliente', 'danger');
+            });
+        }
+
+        // funcao p confirmar exclusao
+        function confirmarExclusao(id) {
+            deleteId = id;
+            new bootstrap.Modal(document.getElementById('confirmDeleteModal')).show();
+        }
+
+        // Event listener p confirmar exclusao
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (deleteId) {
+                fetch(`?api=1&id=${deleteId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        mostrarAlerta(data.message, 'success');
+                        bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal')).hide();
+                        carregarClientes();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarAlerta('Erro ao excluir cliente', 'danger');
+                });
+            }
+        });
+
+        // funcao p mostrar alertas
+        function mostrarAlerta(mensagem, tipo) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = `
+                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                    ${mensagem}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            alertContainer.innerHTML = alert;
+            
+            // auto remover apos 5s
+            setTimeout(() => {
+                const alertElement = alertContainer.querySelector('.alert');
+                if (alertElement) {
+                    alertElement.remove();
+                }
+            }, 5000);
+        }
+    </script>
 </body>
 </html>
