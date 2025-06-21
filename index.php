@@ -53,7 +53,7 @@ if (isset($_GET['api'])) {
         }
         
         .card-header {
-            background: linear-gradient(45deg, #238636, #2ea043) !important;
+            background: linear-gradient(45deg,rgb(37, 109, 197),rgb(132, 203, 10)) !important;
             border-bottom: 1px solid #30363d;
             border-radius: 15px 15px 0 0 !important;
         }
@@ -74,9 +74,9 @@ if (isset($_GET['api'])) {
         }
         
         .table-dark th {
-            background: linear-gradient(45deg, #161b22, #21262d);
+            background: linear-gradient(45deg,rgb(31, 28, 34),rgb(29, 32, 37));
             border-color: #30363d;
-            color: #7d8590;
+            color:rgb(85, 255, 0);
         }
         
         .table-dark td {
@@ -101,7 +101,7 @@ if (isset($_GET['api'])) {
         }
         
         .form-control {
-            background-color: #0d1117;
+            background-color:rgb(15, 23, 13);
             border: 1px solid #30363d;
             color: #e6edf3;
         }
