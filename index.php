@@ -26,7 +26,7 @@ if (isset($_GET['api'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,50 +34,172 @@ if (isset($_GET['api'])) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        body {
+            background-color: #0d1117;
+            color: #e6edf3;
+        }
+        
         .container-fluid {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #161b22 0%, #21262d 50%, #0d1117 100%);
             min-height: 100vh;
             padding: 20px;
         }
+        
         .card {
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border: none;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             border-radius: 15px;
         }
+        
+        .card-header {
+            background: linear-gradient(45deg, #238636, #2ea043) !important;
+            border-bottom: 1px solid #30363d;
+            border-radius: 15px 15px 0 0 !important;
+        }
+        
         .btn-gradient {
-            background: linear-gradient(45deg, #007bff, #0056b3);
+            background: linear-gradient(45deg, #238636, #2ea043);
             border: none;
             border-radius: 8px;
             transition: all 0.3s ease;
-        }
-        .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
-        }
-        .table th {
-            background: linear-gradient(45deg, #f8f9ff, #e3f2fd);
-            border: none;
-            color: #495057;
-        }
-        .modal-header {
-            background: linear-gradient(45deg, #007bff, #0056b3);
             color: white;
+        }
+        
+        .btn-gradient:hover {
+            background: linear-gradient(45deg, #2ea043, #238636);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(35,134,54,0.4);
+            color: white;
+        }
+        
+        .table-dark th {
+            background: linear-gradient(45deg, #161b22, #21262d);
+            border-color: #30363d;
+            color: #7d8590;
+        }
+        
+        .table-dark td {
+            border-color: #30363d;
+            background-color: #0d1117;
+        }
+        
+        .table-dark tbody tr:hover {
+            background-color: #161b22;
+        }
+        
+        .modal-content {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+        }
+        
+        .modal-header {
+            background: linear-gradient(45deg, #238636, #2ea043);
+            color: white;
+            border-bottom: 1px solid #30363d;
             border-radius: 15px 15px 0 0;
         }
+        
+        .form-control {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+        }
+        
         .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+            background-color: #0d1117;
+            border-color: #238636;
+            box-shadow: 0 0 0 0.2rem rgba(35,134,54,0.25);
+            color: #e6edf3;
         }
-        .alert {
-            border-radius: 10px;
-            border: none;
+        
+        .form-label {
+            color: #e6edf3;
         }
+        
+        .alert-success {
+            background-color: #1f2937;
+            border-color: #238636;
+            color: #4ade80;
+        }
+        
+        .alert-danger {
+            background-color: #1f1f23;
+            border-color: #da3633;
+            color: #f87171;
+        }
+        
+        .alert-warning {
+            background-color: #1f1e17;
+            border-color: #fb8500;
+            color: #fbbf24;
+        }
+        
+        .btn-primary {
+            background-color: #238636;
+            border-color: #238636;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2ea043;
+            border-color: #2ea043;
+        }
+        
+        .btn-danger {
+            background-color: #da3633;
+            border-color: #da3633;
+        }
+        
+        .btn-danger:hover {
+            background-color: #f85149;
+            border-color: #f85149;
+        }
+        
+        .btn-secondary {
+            background-color: #30363d;
+            border-color: #30363d;
+            color: #e6edf3;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #484f58;
+            border-color: #484f58;
+            color: #e6edf3;
+        }
+        
+        .text-primary {
+            color: #58a6ff !important;
+        }
+        
+        .text-muted {
+            color: #7d8590 !important;
+        }
+        
         .animate-fade-in {
             animation: fadeIn 0.5s ease-in;
         }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
         }
     </style>
 </head>
@@ -86,9 +208,9 @@ if (isset($_GET['api'])) {
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
                 <div class="card animate-fade-in">
-                    <div class="card-header bg-primary text-white text-center py-4">
-                        <h2><i class="fas fa-users me-2"></i>Sistema de Gerenciamento de Clientes</h2>
-                        <p class="mb-0">CRUD com PHP OOP, Bootstrap e AJAX</p>
+                    <div class="card-header text-white text-center py-4">
+                        <h2><i class="fas fa-users me-3"></i>Sistema de Gerenciamento de Clientes</h2>
+                        <p class="mb-0">CRUD utilizando PHP OOP, Bootstrap e AJAX</p>
                     </div>
                     <div class="card-body p-4">
                         <div id="alertContainer"></div>
@@ -101,7 +223,7 @@ if (isset($_GET['api'])) {
                         </div>
 
                         <div class="table-responsive">
-                            <table class="table table-hover table-striped" id="clientesTable">
+                            <table class="table table-dark table-hover table-striped" id="clientesTable">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -199,7 +321,6 @@ if (isset($_GET['api'])) {
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Variaveis globais
         let clienteAtual = null;
         let deleteId = null;
 
